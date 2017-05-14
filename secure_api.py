@@ -6,7 +6,7 @@ import socket
 import requests
 
 crypto = Crypto()
-client_ip_addr = "192.168.1.38"
+client_ip_addr = "192.168.1.39"
 dhe_keys, pub_key, priv_key = None, None, None
 
 # SecureIOT server IP address
