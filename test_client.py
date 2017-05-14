@@ -8,5 +8,5 @@ def send_humidity(user):
     humidity = sense.get_humidity()
     send_message(str(humidity), user, server_port)
 
- if __name__ == '__main__':
+if __name__ == '__main__':
  	send_humidity(server_ip)
