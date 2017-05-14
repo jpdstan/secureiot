@@ -10,7 +10,7 @@ client_ip_addr = "192.168.1.38"
 dhe_keys, pub_key, priv_key = None, None, None
 
 # SecureIOT server IP address
-server_ip, server_port = "127.0.0.1", 8080
+server_ip, server_port = "localhost", 8080
 
 # Key-value of shared_secrets between other clients.
 shared_secrets = {}

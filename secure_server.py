@@ -3,7 +3,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 from binascii import hexlify, unhexlify
 
-host, port = "127.0.0.1", 8080
+host, port = "localhost", 8080
 
 # Caches users (MAC addresses) and their public keys in memory to minimize DB queries.
 cached_users = {}
