@@ -1,5 +1,5 @@
 import socket
-from secure_api import receive_message
+from secure_api import receive_message, init
 
 host, port = "", 8080
 
@@ -21,4 +21,5 @@ def listen():
         client_connection.close()
 
 if __name__ == '__main__':
+    init()
     listen()

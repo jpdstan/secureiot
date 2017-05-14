@@ -1,8 +1,7 @@
-import socket
 from pymongo import MongoClient
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
-from Crypto.PublicKey import RSA
+from binascii import hexlify, unhexlify
 
 host, port = "127.0.0.1", 8080
 
@@ -17,19 +16,19 @@ def register_client(ip_addr, pub_key):
 	print("Registering " + ip_addr + " with " + str(pub_key))
 	db.posts.insert_one({
 		'ip_addr': ip_addr,
-		'pub_key' : pub_key})
+		'pub_key' : bytes(str(pub_key), 'utf-8')})
 	
 	results = db.posts.find()
 
 	for result in results:
 		print(result)
 
-# Get the public key of MAC_ADDR.
+# Get the public key of IP_ADDR in STRING form.
 def get_pub_key(ip_addr): # todo need to make sure this correct signature
 	entry = db.posts.find_one({'ip_addr': ip_addr})
 	if entry:
 		print(entry)
-		return entry['pub_key']
+		return str(entry['pub_key'], 'utf-8')
 	return None
 
 class RequestHandler(BaseHTTPRequestHandler):
@@ -38,7 +37,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 		if parsed.path == '/user_pk':
 			pub_key = get_pub_key(parsed.query[2:])
 			if not pub_key is None:
-				self.send_response(200, str(pub_key))
+				self.send_response(200, pub_key)
 				self.end_headers()
 				pass
 		self.send_response(400)
@@ -59,4 +58,5 @@ if __name__ == "__main__":
 	# results = db.posts.find()
 	# for result in results:
 	# 	print(result)
+	db.posts.remove()
 	listen()

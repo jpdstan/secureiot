@@ -1,13 +1,13 @@
 from secure_server import register_client
 from crypto import Crypto
 
-import diffiehellman
+from diffiehellman.diffiehellman import DiffieHellman
 import socket
 import requests
 
 crypto = Crypto()
 client_ip_addr = "192.168.1.38"
-pub_key, priv_key = None, None
+dhe_keys, pub_key, priv_key = None, None, None
 
 # SecureIOT server IP address
 server_ip, server_port = "127.0.0.1", 8080
@@ -22,7 +22,7 @@ def send_message(msg, user, port):
         if user_pub_key is None:
             print("Requested user does not exist in the database.")
             pass
-        shared_secrets[user] = priv_key ^ user_pub_key # todo: use DHE
+        shared_secrets[user] = dhe_keys.generate_shared_secret(user_pub_key) # todo: use DHE
 
     enc_msg = crypto.symmetric_encrypt(msg, shared_secrets[user])
     mac_sig = crypto.message_authentication_code(msg, shared_secrets[user])
@@ -44,14 +44,14 @@ def receive_message(msg, user):
         raise IntegrityError
     return dec_msg
 
-# Request USER's public key from the server.
+# Request USER's public key from the server in INT form.
 def request_user_pk(user):
     response = requests.get("http://" + server_ip + ":" + str(server_port) + "/user_pk?q=" + user)
     if response.status_code == 200:
-        return response.content
+        return int(response.content)
     return None
 
-# Add USER to known hosts (~/.ssh/known_hosts).
+# Add USER to known hosts (~/etc/hosts.allow).
 def add_known_host(user):
     pass
 
@@ -60,21 +60,29 @@ def init():
     # Request this users public key from the SecureIoT server.
     global pub_key
     global priv_key
+    global dhe_keys
 
     pub_key = request_user_pk(client_ip_addr)
 
-    # This MAC address has not registered with our service.
+    # This IP address has not registered with our service.
     if pub_key is None:
         print("Performing key generation, saving, and loading")
-        pub_key, priv_key = crypto.gen_asymmetric_keypair(2048)
-        crypto.save_keyfile("user", priv_key)
-        key_loaded = crypto.load_keyfile("user")
-        assert priv_key == key_loaded
+        dhe_keys = DiffieHellman(18, 0) # only 10 bit keys for testing purposes
+        dhe_keys.generate_public_key()
 
-        register_client(client_ip_addr, crypto.to_string(pub_key))
+        # Write private key to file on client.
+        # priv_key_file = open("keys/" + client_ip_addr, "wb")
+        # priv_key_file.write(bytes(str(dhe_keys.private_key, 'utf-8')))
+        # priv_key_file.close()
+
+        # Register this client's newly created public key with the SecureIoT server.
+        register_client(client_ip_addr, dhe_keys.public_key)
     else:
-        priv_key = crypto.load_keyfile("user")
-    pass
+        pass
+        # Read private key from existing file.
+        # priv_key_file = open("keys/" + client_ip_addr, "rb")
+        # priv_key = int(str(priv_key_file.readall(), 'utf-8'))
+        # priv_key_file.close()
 
 class IntegrityError(RuntimeError):
     """Error to raise whenever an integrity error is encountered."""
