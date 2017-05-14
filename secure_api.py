@@ -17,7 +17,7 @@ shared_secrets = {}
 
 # Send MSG to USER, an IP address. To be used on clients that need to send data to the server.
 def send_message(msg, user, port):
-    if not shared_secrets[user]:
+    if not user in shared_secrets:
         user_pub_key = request_user_pk(user)
         if user_pub_key is None:
             print("Requested user does not exist in the database.")
