@@ -1,5 +1,5 @@
 from uuid import getnode as get_mac
-from secure_server import register_client, get_pub_key
+from secure_server import register_client
 from crypto import Crypto
 
 import socket
@@ -15,8 +15,8 @@ server_ip, server_port = "127.0.0.1", "8080"
 # Key-value of shared_secrets between other clients.
 shared_secrets = {}
 
-# Send MSG to USER. To be used on clients that need to send data to the server.
-def send_message(msg, user, host, port):
+# Send MSG to USER, an IP address. To be used on clients that need to send data to the server.
+def send_message(msg, user, port):
     if not shared_secrets[user]:
         user_pub_key = request_user_pk(user)
         if user_pub_key is None:
