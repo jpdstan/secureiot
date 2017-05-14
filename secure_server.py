@@ -2,8 +2,9 @@ import socket
 from pymongo import MongoClient
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
+from Crypto.PublicKey import RSA
 
-host, port = "192.168.1.38", 8080
+host, port = "127.0.0.1", 8080
 
 # Caches users (MAC addresses) and their public keys in memory to minimize DB queries.
 cached_users = {}
@@ -13,15 +14,15 @@ db = mongo_client['key_database']
 
 # Register the client with MAC_ADDR and their PUB KEY.
 def register_client(ip_addr, pub_key):
-	print("Registering " + ip_addr + " with " + pub_key)
+	print("Registering " + ip_addr + " with " + str(pub_key))
 	db.posts.insert_one({
 		'ip_addr': ip_addr,
 		'pub_key' : pub_key})
 	
-	# results = db.posts.find()
+	results = db.posts.find()
 
-	# for result in results:
-	# 	print(result)
+	for result in results:
+		print(result)
 
 # Get the public key of MAC_ADDR.
 def get_pub_key(ip_addr): # todo need to make sure this correct signature
@@ -37,7 +38,7 @@ class RequestHandler(BaseHTTPRequestHandler):
 		if parsed.path == '/user_pk':
 			pub_key = get_pub_key(parsed.query[2:])
 			if not pub_key is None:
-				self.send_response(200, pub_key)
+				self.send_response(200, str(pub_key))
 				self.end_headers()
 				pass
 		self.send_response(400)

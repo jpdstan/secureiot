@@ -1,16 +1,16 @@
-from uuid import getnode as get_mac
 from secure_server import register_client
 from crypto import Crypto
 
+import diffiehellman
 import socket
 import requests
 
 crypto = Crypto()
-mac_addr = get_mac()
+client_ip_addr = "192.168.1.38"
 pub_key, priv_key = None, None
 
 # SecureIOT server IP address
-server_ip, server_port = "127.0.0.1", "8080"
+server_ip, server_port = "127.0.0.1", 8080
 
 # Key-value of shared_secrets between other clients.
 shared_secrets = {}
@@ -46,8 +46,8 @@ def receive_message(msg, user):
 
 # Request USER's public key from the server.
 def request_user_pk(user):
-    response = requests.get(server_ip + ":" + server_port + "/user_pk?q=" + user)
-    if response.code == 200:
+    response = requests.get("http://" + server_ip + ":" + str(server_port) + "/user_pk?q=" + user)
+    if response.status_code == 200:
         return response.content
     return None
 
@@ -61,7 +61,7 @@ def init():
     global pub_key
     global priv_key
 
-    pub_key = request_user_pk(mac_addr)
+    pub_key = request_user_pk(client_ip_addr)
 
     # This MAC address has not registered with our service.
     if pub_key is None:
@@ -71,7 +71,7 @@ def init():
         key_loaded = crypto.load_keyfile("user")
         assert priv_key == key_loaded
 
-        register_client(mac_addr, pub_key)
+        register_client(client_ip_addr, crypto.to_string(pub_key))
     else:
         priv_key = crypto.load_keyfile("user")
     pass
