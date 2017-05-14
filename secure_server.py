@@ -8,10 +8,8 @@ host, port = "127.0.0.1", 8080
 # Caches users (MAC addresses) and their public keys in memory to minimize DB queries.
 cached_users = {}
 
-# Initialize this machine with the server. 
-# Identifies the machine via MAC address. 
-
-global mongo_client, db
+mongo_client = MongoClient('localhost', 27017)
+db = mongo_client['key_database']
 
 # Register the client with MAC_ADDR and their PUB KEY.
 def register_client(mac_addr, pub_key):
@@ -54,12 +52,7 @@ def listen():
 
 
 if __name__ == "__main__":
-	mongo_client = MongoClient('localhost', 27017)
-	db = mongo_client['key_database']
-	#receive_message()
-	#register_client("abcdef", "abcdef")
-	results = db.posts.find()
-
-	for result in results:
-		print(result)
+	# results = db.posts.find()
+	# for result in results:
+	# 	print(result)
 	listen()

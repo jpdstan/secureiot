@@ -22,7 +22,7 @@ def send_message(msg, user, host, port):
         if user_pub_key is None:
             print("Requested user does not exist in the database.")
             pass
-        shared_secrets[user] = priv_key ^ user_pub_key
+        shared_secrets[user] = priv_key ^ user_pub_key # todo: use DHE
 
     enc_msg = crypto.symmetric_encrypt(msg, shared_secrets[user])
     mac_sig = crypto.message_authentication_code(msg, shared_secrets[user])
