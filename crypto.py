@@ -106,13 +106,6 @@ class Crypto(object):
     #####################
     # Utility Functions #
     #####################
-
-    def to_string(self, RSAObj):
-        """Returns the key in string form.
-        :return: public key of RSA pair
-        """
-        return RSAObj.publickey().exportKey('PEM')
-
     def get_random_bytes(self, n):
         """Returns n bytes of cryptographically-strong randomness, as a
         hex-encoded string.

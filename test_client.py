@@ -1,13 +1,13 @@
 #import sense_hat
 from secure_api import send_message, init
-
+import socket
 #sense = sense_hat.SenseHat()
 
 # This client's IP.
-client_ip = "localhost"
+client_ip = "192.168.1.39"
 
 # The server to connect to.
-server_ip, server_port = "localhost", 8081
+server_ip, server_port = socket.gethostbyname("localhost"), 8081
 
 def send_humidity(user, port):
     #humidity = sense.get_humidity()
@@ -16,4 +16,4 @@ def send_humidity(user, port):
 
 if __name__ == '__main__':
     init(client_ip)
-    send_humidity(server_ip + ":" + str(server_port), server_port) # todo remember to change this to be more general
+    send_humidity(server_ip, server_port) # todo remember to change this to be more general
