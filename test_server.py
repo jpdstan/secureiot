@@ -2,7 +2,7 @@ import socket
 from secure_api import receive_message, init
 
 # This server's IP address and port number.
-server_ip, server_port = socket.gethostbyname("localhost"), 8081
+server_ip, server_port = "192.168.1.38", 8081
 
 def listen():
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,9 +16,7 @@ def listen():
         print("Received data from " + str(client_address))
         data = client_connection.recv(1024)
         msg = receive_message(data, client_address[0])
-
-        print("decrypted message " + msg)
-
+        print("Decrypted message " + msg)
         client_connection.close()
 
 if __name__ == '__main__':
