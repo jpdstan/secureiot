@@ -3,6 +3,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
 from binascii import hexlify, unhexlify
 import socket
+from Crypto.PublicKey import RSA
 
 
 secure_ip, secure_port = socket.gethostbyname("localhost"), 8080
@@ -10,22 +11,24 @@ secure_ip, secure_port = socket.gethostbyname("localhost"), 8080
 # Caches users (MAC addresses) and their public keys in memory to minimize DB queries.
 cached_users = {}
 
+db = {}
+
 mongo_client = MongoClient(socket.gethostbyname("localhost"), 27017)
 db = mongo_client['key_database']
 
 # Register the client with MAC_ADDR and their PUB KEY.
 def register_client(ip_addr, pub_key):
-	print("Registering " + ip_addr + " with " + pub_key)
+	# db['ip_addr'] = pub_key
 	db.posts.insert_one({
 		'ip_addr': ip_addr,
-		'pub_key' : pub_key})
+		'pub_key' : pub_key.exportKey()})
 
 # Get the public key of IP_ADDR in STRING form.
 def get_pub_key(ip_addr): # todo need to make sure this correct signature
 	entry = db.posts.find_one({'ip_addr': ip_addr})
 	if entry:
-		print("Found entry for " + ip_addr + ": " + entry['pub_key'])
-		return entry['pub_key']
+		# print("Found entry for " + ip_addr + ": " + entry['pub_key'])
+		return RSA.importKey(entry['pub_key'])
 	return None
 
 class RequestHandler(BaseHTTPRequestHandler):

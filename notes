@@ -1,3 +1,4 @@
 assumptions:
 - every machine has it's own ip
 - assume static ips (no dhcp)
+- couldn't use symmetric because of padding issues with data format...
