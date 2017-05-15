@@ -9,7 +9,6 @@ cipher_name = 'AES'
 hash_name = 'SHA'
 crypto = Crypto()
 pub_key, priv_key = None, None
-random = "12345"
 
 # SecureIOT server IP address
 server_ip, server_port = socket.gethostbyname("localhost"), 8080

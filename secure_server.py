@@ -5,13 +5,7 @@ from binascii import hexlify, unhexlify
 import socket
 from Crypto.PublicKey import RSA
 
-
 secure_ip, secure_port = socket.gethostbyname("localhost"), 8080
-
-# Caches users (MAC addresses) and their public keys in memory to minimize DB queries.
-cached_users = {}
-
-db = {}
 
 mongo_client = MongoClient(socket.gethostbyname("localhost"), 27017)
 db = mongo_client['key_database']

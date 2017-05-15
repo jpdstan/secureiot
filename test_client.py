@@ -4,10 +4,10 @@ import socket
 #sense = sense_hat.SenseHat()
 
 # This client's IP.
-client_ip = "192.168.1.39"
+client_ip = socket.gethostbyname("localhost")
 
 # The server to connect to.
-server_ip, server_port = socket.gethostbyname("localhost"), 8081
+server_ip, server_port = "127.0.0.1", 8081
 
 def send_humidity(user, port):
     #humidity = sense.get_humidity()
