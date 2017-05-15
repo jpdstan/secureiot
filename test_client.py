@@ -7,7 +7,7 @@ import socket
 client_ip = socket.gethostbyname("localhost")
 
 # The server to connect to.
-server_ip, server_port = "127.0.0.1", 8081
+server_ip, server_port = "192.168.1.38", 8081
 
 def send_humidity(user, port):
     #humidity = sense.get_humidity()
