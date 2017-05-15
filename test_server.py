@@ -1,15 +1,16 @@
 import socket
 from secure_api import receive_message, init
 
-host, port = "", 8080
+# This server's IP address and port number.
+server_ip, server_port = "localhost", 8081
 
 def listen():
     listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    listen_socket.bind((host, port))
+    listen_socket.bind((server_ip, server_port))
     listen_socket.listen(1)
 
-    print('Serving HTTP on port %s ...' % port)
+    print('Serving HTTP on port %s ...' % server_port)
     while True:
         client_connection, client_address = listen_socket.accept()
         print("Received data from " + client_address)
@@ -21,5 +22,5 @@ def listen():
         client_connection.close()
 
 if __name__ == '__main__':
-    init()
+    init(server_ip + ":" + str(server_port))
     listen()

@@ -1,12 +1,14 @@
-from secure_server import register_client
+from secure_server import register_client, get_pub_key
 from crypto import Crypto
 
 from diffiehellman.diffiehellman import DiffieHellman
 import socket
 import requests
 
+# For encryption/decryption.
+cipher_name = 'AES'
+
 crypto = Crypto()
-client_ip_addr = "192.168.1.39"
 dhe_keys, pub_key, priv_key = None, None, None
 
 # SecureIOT server IP address
@@ -22,10 +24,10 @@ def send_message(msg, user, port):
         if user_pub_key is None:
             print("Requested user does not exist in the database.")
             pass
-        shared_secrets[user] = dhe_keys.generate_shared_secret(user_pub_key) # todo: use DHE
+        shared_secrets[user] = dhe_keys.generate_shared_secret(user_pub_key)
 
-    enc_msg = crypto.symmetric_encrypt(msg, shared_secrets[user])
-    mac_sig = crypto.message_authentication_code(msg, shared_secrets[user])
+    enc_msg = crypto.symmetric_encrypt(msg, str(shared_secrets[user]), cipher_name)
+    mac_sig = crypto.message_authentication_code(msg, str(shared_secrets[user]))
 
     # Send message to the intended client
     send_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -44,25 +46,30 @@ def receive_message(msg, user):
         raise IntegrityError
     return dec_msg
 
-# Request USER's public key from the server in INT form.
-def request_user_pk(user):
-    response = requests.get("http://" + server_ip + ":" + str(server_port) + "/user_pk?q=" + user)
-    if response.status_code == 200:
-        return int(response.content)
-    return None
+# Request USER's public key from the server in INT form. todo not working
+# def request_user_pk(user):
+#     response = requests.get("http://" + server_ip + ":" + str(server_port) + "/user_pk?q=" + user)
+#     print("Response from " + server_ip + " to " + user + ": " + str(response.content))
+#     if response.status_code == 200:
+#         return int(response.text)  # todo this is not returning anything...
+#     return None
 
-# Add USER to known hosts (~/etc/hosts.allow).
-def add_known_host(user):
-    pass
+# Return key in INT form.
+def request_user_pk(user):
+    pub_key = get_pub_key(user)
+    if pub_key is None:
+        return None
+    print("Retrieved pub key... " + pub_key)
+    return int(get_pub_key(user))
 
 # Register this machine with the server with generated public key.
-def init():
+def init(ip_addr, port=None):
     # Request this users public key from the SecureIoT server.
     global pub_key
     global priv_key
     global dhe_keys
 
-    pub_key = request_user_pk(client_ip_addr)
+    pub_key = request_user_pk(ip_addr)
 
     # This IP address has not registered with our service.
     if pub_key is None:
@@ -76,7 +83,7 @@ def init():
         # priv_key_file.close()
 
         # Register this client's newly created public key with the SecureIoT server.
-        register_client(client_ip_addr, dhe_keys.public_key)
+        register_client(ip_addr, dhe_keys.public_key)
     else:
         pass
         # Read private key from existing file.
