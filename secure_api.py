@@ -24,6 +24,8 @@ def send_message(msg, user, port):
             print("Requested user does not exist in the database.")
             pass
         shared_pks[user] = user_pub_key
+
+    print("Encrypting the message: " + msg)
     enc_msg = crypto.asymmetric_encrypt(msg, shared_pks[user])
     #enc_msg = crypto.symmetric_encrypt(msg, shared_pks[user], cipher_name)
     #mac_sig = crypto.message_authentication_code(msg, shared_pks[user], hash_name)
