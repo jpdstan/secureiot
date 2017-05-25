@@ -5,14 +5,15 @@ from binascii import hexlify, unhexlify
 import socket
 from Crypto.PublicKey import RSA
 
+# The IP and port of this server.
 secure_ip, secure_port = socket.gethostbyname("localhost"), 8080
 
+# Mongo setup
 mongo_client = MongoClient(socket.gethostbyname("localhost"), 27017)
 db = mongo_client['key_database']
 
-# Register the client with MAC_ADDR and their PUB KEY.
+# Register the client with IP_ADDR and their PUB KEY.
 def register_client(ip_addr, pub_key):
-	# db['ip_addr'] = pub_key
 	db.posts.insert_one({
 		'ip_addr': ip_addr,
 		'pub_key' : pub_key.exportKey()})
@@ -21,13 +22,16 @@ def register_client(ip_addr, pub_key):
 def get_pub_key(ip_addr): # todo need to make sure this correct signature
 	entry = db.posts.find_one({'ip_addr': ip_addr})
 	if entry:
-		# print("Found entry for " + ip_addr + ": " + entry['pub_key'])
 		return RSA.importKey(entry['pub_key'])
 	return None
 
+# Class for path handling of requests.
 class RequestHandler(BaseHTTPRequestHandler):
 	def do_GET(self):
 		parsed = urlparse(self.path)
+
+		# Request path for obtaining a public key of some queried user
+		# ex: localhost:8080/user_pk?q=192.168.0.1
 		if parsed.path == '/user_pk':
 			pub_key = get_pub_key(parsed.query[2:])
 			if not pub_key is None:
@@ -47,10 +51,5 @@ def listen():
 	except KeyboardInterrupt:
 		pass
 
-
 if __name__ == "__main__":
-	# results = db.posts.find()
-	# for result in results:
-	# 	print(result)
-	db.posts.remove()
 	listen()
